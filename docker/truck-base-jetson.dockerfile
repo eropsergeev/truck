@@ -27,7 +27,8 @@ RUN wget -qO - https://apt.kitware.com/keys/kitware-archive-latest.asc | apt-key
     && apt-get install -yq --no-install-recommends cmake \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
-# INSTALL OPENCV
+### INSTALL OPENCV
+
 ARG OPENCV_VERSION="4.5.0"
 
 RUN apt-get update -yq && \
@@ -107,7 +108,7 @@ RUN wget -qO - https://github.com/opencv/opencv/archive/refs/tags/${OPENCV_VERSI
         -DENABLE_NEON=ON \
         -DOPENCV_DNN_CUDA=ON \
         -DOPENCV_ENABLE_NONFREE=ON \
-        -DOPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib-${OPENCV_VERSION}/modules \
+        -DOPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib4.5.0/modules \
         -DWITH_CUBLAS=ON \
         -DWITH_CUDA=ON \
         -DWITH_CUDNN=ON \
@@ -122,7 +123,8 @@ RUN wget -qO - https://github.com/opencv/opencv/archive/refs/tags/${OPENCV_VERSI
         -DBUILD_TESTS=OFF \
     && make -j$(nproc) install && rm -rf /tmp/*
 
-# INSTALL LIBREALSENSE
+### INSTALL LIBREALSENSE
+
 ARG LIBRS_VERSION="2.50.0"
 
 RUN apt-get update -yq \
@@ -155,7 +157,8 @@ RUN wget -qO - https://github.com/IntelRealSense/librealsense/archive/refs/tags/
     && make -j$(($(nproc)-1)) install \
     && rm -rf /tmp/*
 
-# INSTALL PYTORCH
+### INSTALL PYTORCH
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         python3-pip \
@@ -273,6 +276,7 @@ RUN apt-get update -q \
     && curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -o /usr/share/keyrings/ros-archive-keyring.gpg \
     && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(lsb_release -cs) main" > /etc/apt/sources.list.d/ros2.list \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
+
 ENV GAZEBO_VERSION="gazebo9"
 
 RUN apt-get update -q \
@@ -373,20 +377,10 @@ RUN cd ${ROS_DISTRO}/src \
     && echo 'source ${ROS_ROOT}/setup.bash' >> /root/.bashrc \
     && rm -rf /tmp/*
 
-RUN add-apt-repository ppa:ubuntu-toolchain-r/test -y \
-    && apt-get update \
-    && apt-get install gcc-9 g++-9 \
-    && update-alternatives --install /usr/bin/cc cc /usr/bin/gcc-9 50 \
-    && update-alternatives --install /usr/bin/c++ c++ /usr/bin/g++-9 50 \
-    && update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 50 \
-    && update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 50 \
-    && rm -rf /var/lib/apt/lists/* \
-    && apt-get clean
-
 ### INSTALL DEV PKGS
 
-RUN apt-get update -q && \
-    apt-get install -yq --no-install-recommends \
+RUN apt-get update -q \
+    && apt-get install -yq --no-install-recommends \
         build-essential \
         gfortran \
         curl \
@@ -406,7 +400,18 @@ RUN apt-get update -q && \
         httpie \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
+RUN apt-get update -q \
+    && apt-get install -yq --no-install-recommends \
+        firefox \
+        openssh-server \
+        xauth \
+        x11-apps \
+    && echo 'root:root' | chpasswd \
+    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
+
+EXPOSE 22
+
 ### SETUP ENTRYPOINT
-COPY /ros_setup.bash /ros_setup.bash
-ENTRYPOINT ["/ros_setup.bash"]
+COPY /entrypoint.bash /entrypoint.bash
+ENTRYPOINT ["/entrypoint.bash"]
 WORKDIR /

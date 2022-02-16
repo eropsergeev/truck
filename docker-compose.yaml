@@ -3,25 +3,30 @@ version: "3.5"
 services:
   truck-base-jetson:
     container_name: truck-base
-    image: cr.yandex/crp8hpfj5tuhlaodm4dl/truck-base:jetson-0.2.0
-    runtime: nvidia
+    image: cr.yandex/crp8hpfj5tuhlaodm4dl/truck-base:jetson-0.3.0
     stdin_open: true
+    privileged: true
     tty: true
     build:
       dockerfile: docker/truck-base-jetson.dockerfile
       context: .
+    environment:
+    - DISPLAY=${DISPLAY}
     ports:
+    - "2222:22"
     - "9090:9090"
     volumes:
-    - "/dev:/dev"
+    - /tmp/.X11-unix:/tmp/.X11-unix
+    - /dev:/dev
 
   truck-base-amd64:
     container_name: truck-base
-    image: cr.yandex/crp8hpfj5tuhlaodm4dl/truck-base:amd64-0.2.0
+    image: cr.yandex/crp8hpfj5tuhlaodm4dl/truck-base:amd64-0.3.0
     stdin_open: true
     tty: true
     build:
       dockerfile: docker/truck-base-amd64.dockerfile
       context: .
     ports:
+    - "2222:22"
     - "9090:9090"
