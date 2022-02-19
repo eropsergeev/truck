@@ -10,13 +10,9 @@ services:
     build:
       dockerfile: docker/truck-base-jetson.dockerfile
       context: .
-    environment:
-    - DISPLAY=${DISPLAY}
     ports:
-    - "2222:22"
     - "9090:9090"
     volumes:
-    - /tmp/.X11-unix:/tmp/.X11-unix
     - /dev:/dev
 
   truck-base-amd64:
@@ -28,5 +24,4 @@ services:
       dockerfile: docker/truck-base-amd64.dockerfile
       context: .
     ports:
-    - "2222:22"
     - "9090:9090"

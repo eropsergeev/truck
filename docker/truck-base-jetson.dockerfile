@@ -86,7 +86,7 @@ RUN wget -qO - https://github.com/opencv/opencv/archive/refs/tags/${OPENCV_VERSI
     && wget -qO - https://github.com/opencv/opencv_contrib/archive/refs/tags/${OPENCV_VERSION}.tar.gz | tar -xz \
     && cd opencv-${OPENCV_VERSION} && mkdir -p build && cd build \
     && OPENCV_MODULES=(core calib3d features2d flann highgui imgcodecs photo python stitching video videoio \
-        aruco bgsegm ccalib cudaarithm cudabgsegm cudacodec cudafeatures2d cudafilters cudaimgproc \
+        aruco bgsegm ccalib cudev cudaarithm cudabgsegm cudacodec cudafeatures2d cudafilters cudaimgproc \
         cudaoptflow cudastereo cudawarping cudev optflow rgbd sfm stereo surface_matching \
         xfeatures2d ximgproc xphoto) \
     && cmake .. \
@@ -108,7 +108,7 @@ RUN wget -qO - https://github.com/opencv/opencv/archive/refs/tags/${OPENCV_VERSI
         -DENABLE_NEON=ON \
         -DOPENCV_DNN_CUDA=ON \
         -DOPENCV_ENABLE_NONFREE=ON \
-        -DOPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib4.5.0/modules \
+        -DOPENCV_EXTRA_MODULES_PATH=/tmp/opencv_contrib-${OPENCV_VERSION}/modules \
         -DWITH_CUBLAS=ON \
         -DWITH_CUDA=ON \
         -DWITH_CUDNN=ON \
@@ -400,18 +400,8 @@ RUN apt-get update -q \
         httpie \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
-RUN apt-get update -q \
-    && apt-get install -yq --no-install-recommends \
-        firefox \
-        openssh-server \
-        xauth \
-        x11-apps \
-    && echo 'root:root' | chpasswd \
-    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
-
-EXPOSE 22
-
 ### SETUP ENTRYPOINT
+
 COPY /entrypoint.bash /entrypoint.bash
 ENTRYPOINT ["/entrypoint.bash"]
 WORKDIR /

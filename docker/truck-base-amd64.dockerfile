@@ -355,18 +355,8 @@ RUN apt-get update -q \
         httpie \
     && rm -rf /var/lib/apt/lists/* && apt-get clean
 
-RUN apt-get update -q \
-    && apt-get install -yq --no-install-recommends \
-        firefox \
-        openssh-server \
-        xauth \
-        x11-apps \
-    && echo 'root:root' | chpasswd \
-    && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
-
-EXPOSE 22
-
 ### SETUP ENTRYPOINT
+
 COPY /entrypoint.bash /entrypoint.bash
 ENTRYPOINT ["/entrypoint.bash"]
 WORKDIR /
