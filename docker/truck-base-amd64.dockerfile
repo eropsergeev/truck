@@ -10,7 +10,7 @@ WORKDIR /tmp
 ### INSTALL CMAKE
 
 RUN apt-get update -q && \
-    sudo apt-get install -yq --no-install-recommends \
+    apt-get install -yq --no-install-recommends \
         software-properties-common \
         apt-transport-https \
         ca-certificates \
